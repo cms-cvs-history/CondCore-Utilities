@@ -10,7 +10,7 @@
 <bin file=cmscond_build_iov.cpp name=cmscond_build_iov></bin>
 <bin file=cmscond_export_iov.cpp name=cmscond_export_iov></bin>
 <bin file=cmscond_shuffle_iov.cpp name=cmscond_shuffle_iov>
-   <use name=CondTools/Utilities>		
+   <use name=CondCore/Utilities>		
 </bin>
 <bin file=cmscond_delete_iov.cpp name=cmscond_delete_iov></bin>
 
