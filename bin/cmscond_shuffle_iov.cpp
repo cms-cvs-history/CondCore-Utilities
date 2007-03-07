@@ -10,9 +10,8 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
-//#include "CondTools/Utilities/interface/CSVDataLineParser.h"
-#include "CondTools/Utilities/interface/CSVHeaderLineParser.h"
-#include "CondTools/Utilities/interface/CSVBlankLineParser.h"
+#include "CondCore/Utilities/interface/CSVHeaderLineParser.h"
+#include "CondCore/Utilities/interface/CSVBlankLineParser.h"
 #include <boost/program_options.hpp>
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/utility/lists.hpp>
