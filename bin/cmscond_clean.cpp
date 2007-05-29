@@ -20,7 +20,7 @@
 
 int main(int argc, char** argv) {
   boost::program_options::options_description desc("Allowed options");
-  boost::program_options::options_description visible("Usage: remove_pool_tables contactstring [-h]\n Options");
+  boost::program_options::options_description visible("Usage: cmscond_clean contactstring [-h]\n Options");
   visible.add_options()
     ("connect,c", boost::program_options::value<std::string>(), "contact string to db(required)")
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
     ("debug,d","switch on debug mode")
     ("help,h", "help message")
     ;
+  
   desc.add(visible);
   boost::program_options::variables_map vm;
   try{
@@ -41,7 +42,6 @@ int main(int argc, char** argv) {
     std::cout << visible <<std::endl;;
     return 0;
   }
-  
   if(!vm.count("connect")){
     std::cerr <<"[Error] no contactString given \n";
     std::cerr<<" please do "<<argv[0]<<" --help \n";
@@ -49,7 +49,6 @@ int main(int argc, char** argv) {
   }
   
   std::string connect=vm["connect"].as<std::string>();
-  std::string version=vm["version"].as<std::string>();
   std::string user("");
   std::string pass("");
   bool debug=false;
@@ -81,37 +80,13 @@ int main(int argc, char** argv) {
     cond::RelationalStorageManager coraldb(connect);
     coraldb.connect(cond::ReadWriteCreate);
     coraldb.startTransaction(false);
-    if( coraldb.sessionProxy().nominalSchema().existsTable("POOL_OR_MAPPING_VERSIONS") ) {
-      coraldb.sessionProxy().nominalSchema().dropTable("POOL_OR_MAPPING_VERSIONS");
-      std::cout<<"table POOL_OR_MAPPING_VERSIONS droped"<<std::endl;
-    }
-    if( coraldb.sessionProxy().nominalSchema().existsTable("POOL_OR_MAPPING_ELEMENTS") ) {
-      coraldb.sessionProxy().nominalSchema().dropTable("POOL_OR_MAPPING_ELEMENTS");
-      std::cout<<"table POOL_OR_MAPPING_ELEMENTS droped"<<std::endl;
-    }
-    if( coraldb.sessionProxy().nominalSchema().existsTable("POOL_OR_MAPPING_COLUMNS") ) {
-      coraldb.sessionProxy().nominalSchema().dropTable("POOL_OR_MAPPING_COLUMNS");
-      std::cout<<"table POOL_OR_MAPPING_COLUMNS droped"<<std::endl;
-    }
-    if( coraldb.sessionProxy().nominalSchema().existsTable("POOL_CONT___LINKS") ) {
-      coraldb.sessionProxy().nominalSchema().dropTable("POOL_CONT___LINKS");
-      std::cout<<"table POOL_CONT___LINKS droped"<<std::endl;
-    }
-    if( coraldb.sessionProxy().nominalSchema().existsTable("POOL_CONT___PARAMS") ) {
-      coraldb.sessionProxy().nominalSchema().dropTable("POOL_CONT___PARAMS");
-      std::cout<<"table POOL_CONT___PARAMS droped"<<std::endl;
-    }
-    if( coraldb.sessionProxy().nominalSchema().existsTable("POOL_CONT___SHAPES") ) {
-      coraldb.sessionProxy().nominalSchema().dropTable("POOL_CONT___SHAPES");
-      std::cout<<"table POOL_CONT___SHAPES droped"<<std::endl;
-    }
-    if( coraldb.sessionProxy().nominalSchema().existsTable("POOL_RSS_CONTAINERS") ) {
-      coraldb.sessionProxy().nominalSchema().dropTable("POOL_RSS_CONTAINERS");
-      std::cout<<"table POOL_RSS_CONTAINERS droped"<<std::endl;
-    }
-    if( coraldb.sessionProxy().nominalSchema().existsTable("POOL_RSS_DB") ) {
-      coraldb.sessionProxy().nominalSchema().dropTable("POOL_RSS_DB");
-      std::cout<<"table POOL_RSS_DB droped"<<std::endl;
+    coral::AttributeList emptybinddata;
+    std::set<std::string> tables=coraldb.sessionProxy().nominalSchema().listTables();
+    std::set<std::string>::iterator it;
+    std::set<std::string>::iterator itEnd;
+    for( it=tables.begin(); it!=tables.end(); ++it){
+      coraldb.sessionProxy().nominalSchema().dropTable(*it);
+      std::cout<<*it<<" droped"<<std::endl;
     }
     coraldb.commit();
     coraldb.disconnect();
