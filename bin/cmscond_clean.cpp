@@ -1,11 +1,12 @@
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-
+#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -62,35 +63,36 @@ int main(int argc, char** argv) {
     debug=true;
   }
   try{
-    cond::DBSession* session=new cond::DBSession(true);
-    session->sessionConfiguration().setAuthenticationMethod( cond::Env );
+    cond::DBSession* session=new cond::DBSession;
+    session->configuration().setAuthenticationMethod( cond::Env );
     if(debug){
-      session->sessionConfiguration().setMessageLevel( cond::Debug );
+      session->configuration().setMessageLevel( cond::Debug );
     }else{
-      session->sessionConfiguration().setMessageLevel( cond::Error );
+      session->configuration().setMessageLevel( cond::Error );
     }
-    session->connectionConfiguration().setConnectionRetrialTimeOut( 600 );
-    session->connectionConfiguration().enableConnectionSharing();
-    session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();  
+    session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
+    session->configuration().connectionConfiguration()->enableConnectionSharing();
+    session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();  
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
     ::putenv(const_cast<char*>(userenv.c_str()));
     ::putenv(const_cast<char*>(passenv.c_str()));
+    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+    conHandler.registerConnection("mydb",connect,"",0);
     session->open();
-    cond::RelationalStorageManager coraldb(connect);
-    coraldb.connect(cond::ReadWriteCreate);
-    coraldb.startTransaction(false);
+    conHandler.connect(session);
+    cond::Connection* myconnection=conHandler.getConnection("mydb");
+    cond::CoralTransaction& coraldb=myconnection->coralTransaction(false);
+    coraldb.start();
     coral::AttributeList emptybinddata;
-    std::set<std::string> tables=coraldb.sessionProxy().nominalSchema().listTables();
+    std::set<std::string> tables=coraldb.nominalSchema().listTables();
     std::set<std::string>::iterator it;
     std::set<std::string>::iterator itEnd;
     for( it=tables.begin(); it!=tables.end(); ++it){
-      coraldb.sessionProxy().nominalSchema().dropTable(*it);
+      coraldb.nominalSchema().dropTable(*it);
       std::cout<<*it<<" droped"<<std::endl;
     }
     coraldb.commit();
-    coraldb.disconnect();
-    session->close();
     delete session;
   }catch( std::exception& e ) {
     std::cerr << e.what() << std::endl;

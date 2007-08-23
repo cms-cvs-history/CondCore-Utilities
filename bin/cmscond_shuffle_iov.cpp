@@ -1,8 +1,10 @@
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+//#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -173,37 +175,32 @@ int main( int argc, char** argv ){
     std::cout<<"pass:\t"<<pass<<'\n';
   }
   std::string iovtoken;
+  cond::DBSession* session=new cond::DBSession;
+  if(!debug){
+    session->configuration().setMessageLevel(cond::Error);
+  }else{
+    session->configuration().setMessageLevel(cond::Debug);
+  }
+  static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+  conHandler.registerConnection("mydb",connect,catalog,0);
   try{
-    cond::DBSession* session=new cond::DBSession(true);
-    if(!debug){
-      session->sessionConfiguration().setMessageLevel(cond::Error);
-    }else{
-      session->sessionConfiguration().setMessageLevel(cond::Debug);
-    }
     session->open();
-    cond::RelationalStorageManager* coraldb=new cond::RelationalStorageManager(connect);
-    cond::PoolStorageManager pooldb(connect,catalog,session);
+    cond::PoolTransaction& pooldb=conHandler.getConnection("mydb")->poolTransaction(false);
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
-    pooldb.connect();
-    pooldb.startTransaction(false);
+    pooldb.start();
     editor->bulkInsert(newValues);
     iovtoken=editor->token();
     pooldb.commit();
-    pooldb.disconnect();
-    cond::MetaData* metadata=new cond::MetaData(*coraldb);
-    coraldb->connect(cond::ReadWriteCreate);
-    coraldb->startTransaction(false);
-    metadata->addMapping(tag,iovtoken);
-    coraldb->commit();
-    coraldb->disconnect();
-    
+    cond::CoralTransaction& coraldb=conHandler.getConnection("mydb")->coralTransaction(false);
+    cond::MetaData metadata(coraldb);
+    coraldb.start();
+    metadata.addMapping(tag,iovtoken);
+    coraldb.commit();
     if(debug){
       std::cout<<"source iov token "<<iovtoken<<std::endl;
     }
-    session->close();
     delete editor;
-    delete metadata;
     delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
