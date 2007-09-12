@@ -19,7 +19,7 @@ int main( int argc, char** argv ){
     ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
     ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    ("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
+    //("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
     ("all,a","list all tags(default mode)")
     ("tag,t",boost::program_options::value<std::string>(),"list info of the specified tag")
     ("debug,d","switch on debug mode")
@@ -39,7 +39,7 @@ int main( int argc, char** argv ){
     return 0;
   }
   std::string connect;
-  std::string catalog("file:PoolFileCatalog.xml");
+  //std::string catalog("file:PoolFileCatalog.xml");
   std::string user("");
   std::string pass("");
   bool listAll=true;
@@ -58,9 +58,10 @@ int main( int argc, char** argv ){
   if(vm.count("pass")){
     pass=vm["pass"].as<std::string>();
   }
-  if(vm.count("catalog")){
+  /*if(vm.count("catalog")){
     catalog=vm["catalog"].as<std::string>();
-  }
+    throw cond::Exception("catalog option is obsolete, please try again with it");
+    }*/
   if(vm.count("tag")){
     tag=vm["tag"].as<std::string>();
     listAll=false;
@@ -117,6 +118,8 @@ int main( int argc, char** argv ){
       token=metadata_svc.getToken(tag);
       coraldb.commit();
       coraldb.disconnect();
+      std::string catalog("pfncatalog_memory://POOL_RDBMS?");
+      catalog.append(connect);
       cond::PoolStorageManager pooldb(connect,catalog,session);
       cond::IOVService iovservice(pooldb);
       cond::IOVIterator* ioviterator=iovservice.newIOVIterator(token);

@@ -18,7 +18,8 @@ int main( int argc, char** argv ){
     ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
     ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    ("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
+    /*("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
+     */
     ("all,a","delete all tags")
     ("tag,t",boost::program_options::value<std::string>(),"delete the specified tag and IOV")
     ("withPayload","delete payload data associated with the specified tag (default off)")
@@ -38,8 +39,7 @@ int main( int argc, char** argv ){
     std::cout << visible <<std::endl;;
     return 0;
   }
-  std::string connect;
-  std::string catalog("file:PoolFileCatalog.xml");
+  std::string connect;  
   std::string user("");
   std::string pass("");
   bool deleteAll=true;
@@ -59,9 +59,9 @@ int main( int argc, char** argv ){
   if(vm.count("pass")){
     pass=vm["pass"].as<std::string>();
   }
-  if(vm.count("catalog")){
-    catalog=vm["catalog"].as<std::string>();
-  }
+  //if(vm.count("catalog")){
+  //  catalog=vm["catalog"].as<std::string>();
+  //}
   if(vm.count("tag")){
     tag=vm["tag"].as<std::string>();
     deleteAll=false;
@@ -87,9 +87,13 @@ int main( int argc, char** argv ){
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
   ::putenv(const_cast<char*>(userenv.c_str()));
   ::putenv(const_cast<char*>(passenv.c_str()));
+  std::string catalog("pfncatalog_memory://POOL_RDBMS?");
+  catalog.append(connect);
+  //std::cout<<"catalog in use "<<catalog<<std::endl;
   if( deleteAll ){
     try{
       session->open();
+      catalog.append(connect);
       cond::PoolStorageManager pooldb(connect,catalog,session);
       cond::IOVService iovservice(pooldb);
       pooldb.connect();
