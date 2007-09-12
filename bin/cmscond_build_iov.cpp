@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     ("table,t",boost::program_options::value<std::string>(),"payload table name(required)")
     ("object,o",boost::program_options::value<std::string>(),"payload object class name(required)")
     ("container,C",boost::program_options::value<std::string>(),"payload object container name(default same as classname)")
-    ("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
+    //("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
     ("appendiov,a","append new data(default off). If tag exists, append new data to it; if the tag does not exist, add data to the new tag.")
     ("infinite_iov,i","build infinite iov in run(default off)")
     ("runnumber,r","use run number type (default)")
@@ -138,10 +138,11 @@ int main(int argc, char** argv) {
   }else{
     containername=vm["container"].as<std::string>();
   }
-  std::string catalogname("file:PoolFileCatalog.xml");
-  if(vm.count("catalog")){
+  /*std::string catalogname("file:PoolFileCatalog.xml");
+    if(vm.count("catalog")){
     catalogname=vm["catalog"].as<std::string>();
-  }
+    }
+  */
   std::string tag;
   if( !vm.count("iov_name") ){
     std::cerr <<"[Error] No iov_name argument given \n";
@@ -161,7 +162,7 @@ int main(int argc, char** argv) {
     std::cout<<"\t table: "<<table<<"\n";
     std::cout<<"\t objectname: "<<objectname<<"\n";
     std::cout<<"\t containername: "<<containername<<"\n";
-    std::cout<<"\t catalog: "<<catalogname<<"\n";
+    //std::cout<<"\t catalog: "<<catalogname<<"\n";
     std::cout<<"\t infinite: "<<infiov<<"\n";
     std::cout<<"\t appendiov: "<<appendiov<<"\n";
     std::cout<<"\t iov_name: "<<tag<<"\n";
@@ -186,6 +187,8 @@ int main(int argc, char** argv) {
     ::putenv(const_cast<char*>(passenv.c_str()));
     session->open();
     std::auto_ptr<pool::IFileCatalog> mycatalog(new pool::IFileCatalog);
+    std::string catalogname("pfncatalog_memory://POOL_RDBMS?");
+    catalogname.append(connect);
     mycatalog->addReadCatalog(catalogname);
     pool::FClookup l;
     mycatalog->setAction(l);

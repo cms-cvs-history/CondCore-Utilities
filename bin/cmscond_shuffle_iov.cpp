@@ -94,7 +94,7 @@ int main( int argc, char** argv ){
     ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
     ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    ("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default file:PoolFileCatalog.xml)")
+    //("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default file:PoolFileCatalog.xml)")
     ("debug","switch on debug mode")
     ("help,h", "help message")
     ;
@@ -120,7 +120,6 @@ int main( int argc, char** argv ){
     return 0;
   }
   std::string connect;
-  std::string catalog("file:PoolFileCatalog.xml");
   std::string user("");
   std::string pass("");
   std::string inputFileName;
@@ -158,16 +157,16 @@ int main( int argc, char** argv ){
   if(vm.count("pass")){
     pass=vm["pass"].as<std::string>();
   }
-  if(vm.count("catalog")){
-    catalog=vm["catalog"].as<std::string>();
-  }
+  //if(vm.count("catalog")){
+  //  catalog=vm["catalog"].as<std::string>();
+  //}
   if(vm.count("debug")){
     debug=true;
   }
   if(debug){
     std::cout<<"inputFile:\t"<<inputFileName<<std::endl;
     std::cout<<"connect:\t"<<connect<<'\n';
-    std::cout<<"catalog:\t"<<catalog<<'\n';
+    //std::cout<<"catalog:\t"<<catalog<<'\n';
     std::cout<<"tag:\t"<<tag<<'\n';
     std::cout<<"user:\t"<<user<<'\n';
     std::cout<<"pass:\t"<<pass<<'\n';
@@ -182,6 +181,8 @@ int main( int argc, char** argv ){
     }
     session->open();
     cond::RelationalStorageManager* coraldb=new cond::RelationalStorageManager(connect);
+    std::string catalog("pfncatalog_memory://POOL_RDBMS?");
+    catalog.append(connect);
     cond::PoolStorageManager pooldb(connect,catalog,session);
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
