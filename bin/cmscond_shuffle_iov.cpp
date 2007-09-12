@@ -94,6 +94,7 @@ int main( int argc, char** argv ){
     ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
     ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
+    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
     //("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default file:PoolFileCatalog.xml)")
     ("debug","switch on debug mode")
     ("help,h", "help message")
@@ -122,6 +123,7 @@ int main( int argc, char** argv ){
   std::string connect;
   std::string user("");
   std::string pass("");
+  std::string authPath("");
   std::string inputFileName;
   std::fstream inputFile;
   std::string tag("");
@@ -160,6 +162,9 @@ int main( int argc, char** argv ){
   //if(vm.count("catalog")){
   //  catalog=vm["catalog"].as<std::string>();
   //}
+  if( vm.count("authPath") ){
+      authPath=vm["authPath"].as<std::string>();
+  }
   if(vm.count("debug")){
     debug=true;
   }
@@ -170,15 +175,27 @@ int main( int argc, char** argv ){
     std::cout<<"tag:\t"<<tag<<'\n';
     std::cout<<"user:\t"<<user<<'\n';
     std::cout<<"pass:\t"<<pass<<'\n';
+    std::cout<<"authPath: \t"<<authPath<<'\n';
   }
   std::string iovtoken;
   try{
     cond::DBSession* session=new cond::DBSession(true);
+    if( !authPath.empty() ){
+      session->sessionConfiguration().setAuthenticationMethod( cond::XML );
+    }else{
+      session->sessionConfiguration().setAuthenticationMethod( cond::Env );
+    }
     if(!debug){
       session->sessionConfiguration().setMessageLevel(cond::Error);
     }else{
       session->sessionConfiguration().setMessageLevel(cond::Debug);
     }
+    std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
+  ::putenv(const_cast<char*>(userenv.c_str()));
+  ::putenv(const_cast<char*>(passenv.c_str()));
+  ::putenv(const_cast<char*>(authenv.c_str()));
     session->open();
     cond::RelationalStorageManager* coraldb=new cond::RelationalStorageManager(connect);
     std::string catalog("pfncatalog_memory://POOL_RDBMS?");
