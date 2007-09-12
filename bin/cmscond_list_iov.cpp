@@ -20,6 +20,7 @@ int main( int argc, char** argv ){
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
     ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
     //("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
+    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
     ("all,a","list all tags(default mode)")
     ("tag,t",boost::program_options::value<std::string>(),"list info of the specified tag")
     ("debug,d","switch on debug mode")
@@ -42,6 +43,7 @@ int main( int argc, char** argv ){
   //std::string catalog("file:PoolFileCatalog.xml");
   std::string user("");
   std::string pass("");
+  std::string authPath("");
   bool listAll=true;
   bool debug=false;
   std::string tag;
@@ -62,6 +64,9 @@ int main( int argc, char** argv ){
     catalog=vm["catalog"].as<std::string>();
     throw cond::Exception("catalog option is obsolete, please try again with it");
     }*/
+  if( vm.count("authPath") ){
+      authPath=vm["authPath"].as<std::string>();
+  }
   if(vm.count("tag")){
     tag=vm["tag"].as<std::string>();
     listAll=false;
@@ -70,19 +75,25 @@ int main( int argc, char** argv ){
     debug=true;
   }
   cond::DBSession* session=new cond::DBSession(true);
-  session->sessionConfiguration().setAuthenticationMethod( cond::Env );
+  if( !authPath.empty() ){
+    session->sessionConfiguration().setAuthenticationMethod( cond::XML );
+  }else{
+    session->sessionConfiguration().setAuthenticationMethod( cond::Env );
+  }
   if(debug){
     session->sessionConfiguration().setMessageLevel( cond::Debug );
   }else{
     session->sessionConfiguration().setMessageLevel( cond::Error );
   }
+  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
+  ::putenv(const_cast<char*>(userenv.c_str()));
+  ::putenv(const_cast<char*>(passenv.c_str()));
+  ::putenv(const_cast<char*>(authenv.c_str()));
   session->connectionConfiguration().setConnectionRetrialTimeOut( 600 );
   session->connectionConfiguration().enableConnectionSharing();
   session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
-  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-  ::putenv(const_cast<char*>(userenv.c_str()));
-  ::putenv(const_cast<char*>(passenv.c_str()));
   if( listAll ){
     try{
       session->open();

@@ -20,6 +20,7 @@ int main( int argc, char** argv ){
     ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
     /*("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
      */
+    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
     ("all,a","delete all tags")
     ("tag,t",boost::program_options::value<std::string>(),"delete the specified tag and IOV")
     ("withPayload","delete payload data associated with the specified tag (default off)")
@@ -42,6 +43,7 @@ int main( int argc, char** argv ){
   std::string connect;  
   std::string user("");
   std::string pass("");
+  std::string authPath("");
   bool deleteAll=true;
   bool debug=false;
   bool withPayload=false;
@@ -59,6 +61,9 @@ int main( int argc, char** argv ){
   if(vm.count("pass")){
     pass=vm["pass"].as<std::string>();
   }
+  if( vm.count("authPath") ){
+    authPath=vm["authPath"].as<std::string>();
+  }
   //if(vm.count("catalog")){
   //  catalog=vm["catalog"].as<std::string>();
   //}
@@ -74,7 +79,11 @@ int main( int argc, char** argv ){
   }
   
   cond::DBSession* session=new cond::DBSession(true);
-  session->sessionConfiguration().setAuthenticationMethod( cond::Env );
+  if( !authPath.empty() ){
+    session->sessionConfiguration().setAuthenticationMethod( cond::XML );
+  }else{
+    session->sessionConfiguration().setAuthenticationMethod( cond::Env );
+  }
   if(debug){
     session->sessionConfiguration().setMessageLevel( cond::Debug );
   }else{
@@ -85,8 +94,10 @@ int main( int argc, char** argv ){
   session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections(); 
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
   ::putenv(const_cast<char*>(userenv.c_str()));
   ::putenv(const_cast<char*>(passenv.c_str()));
+  ::putenv(const_cast<char*>(authenv.c_str()));
   std::string catalog("pfncatalog_memory://POOL_RDBMS?");
   catalog.append(connect);
   //std::cout<<"catalog in use "<<catalog<<std::endl;
