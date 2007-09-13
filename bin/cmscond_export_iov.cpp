@@ -12,6 +12,7 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/DBCommon/interface/ConnectMode.h"
+#include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "SealBase/SharedLibrary.h"
 #include "SealBase/SharedLibraryError.h"
 #include <boost/program_options.hpp>
@@ -162,6 +163,10 @@ int main( int argc, char** argv ){
   try{
     std::string sourceiovtoken;
     std::string destiovtoken;
+    if( sourceConnect.find("sqlite_fip:") != std::string::npos ){
+      cond::FipProtocolParser p;
+      sourceConnect=p.getRealConnect(sourceConnect);
+    }
     cond::RelationalStorageManager* sourceCoralDB=new cond::RelationalStorageManager(sourceConnect,session);
     sourceCoralDB->connect(cond::ReadOnly);
     sourceCoralDB->startTransaction(true);

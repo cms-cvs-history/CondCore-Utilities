@@ -9,6 +9,7 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
+#include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
@@ -94,6 +95,10 @@ int main( int argc, char** argv ){
   session->connectionConfiguration().setConnectionRetrialTimeOut( 600 );
   session->connectionConfiguration().enableConnectionSharing();
   session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
+  if( connect.find("sqlite_fip:") != std::string::npos ){
+    cond::FipProtocolParser p;
+    connect=p.getRealConnect(connect);
+  }
   if( listAll ){
     try{
       session->open();
