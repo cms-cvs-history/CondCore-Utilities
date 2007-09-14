@@ -40,6 +40,18 @@ class CondBasicIter{
             
         template <class A> friend class CondIter;
     
+        
+        /**
+        tell Iter to point to a database. After this call Iter can be used.
+        Direct Access to database through frontier
+It needs:
+        \li \c NameDB -> name of the database
+        \li \c FileXml -> catalog of the database
+        \li \c File -> Tag human-readable of the content of the database
+        \li \c User -> name of the User (if you don't need to authenticate don't write anything here)
+        \li \c Pass -> Password to access database (if you don't need to authenticate don't write anything here)
+         */
+        
         void create(const std::string & NameDB,
                     const std::string & FileXml,
                     const std::string & File,
@@ -47,31 +59,72 @@ class CondBasicIter{
                     const std::string & Pass = ""
                    );
        
+        
+        /**
+        Set the range of interest of the Iterator of the IOVs.
+         */ 
         void setRange(unsigned int min,unsigned int max);
         void setRange(int min,int max); 
 
+        
+         /**
+        Set the minimum of the range of interest of the Iterator of the IOVs.
+          */  
+         
         void setMin(unsigned int min);
         void setMin(int min);
 
+        /**
+        Set the maximum of the range of interest of the Iterator of the IOVs.
+         */  
+        
         void setMax(unsigned int max);
         void setMax(int max);
  
+        /**
+        Get the mean time of the Iterval of Validity.
+         */  
         unsigned int getTime();
   
+         /**
+        Get the SINCE TIME of the Interval of Validity.
+          */
         unsigned int getStartTime();
  
+        /**
+        Get the TILL TIME of the Interval of Validity.
+         */
         unsigned int getStopTime();
        
+        /**
+        Get the minimum of the range of interest of the Iterator of the IOVs.
+        */
         unsigned int getMin();
-       
+
+        /**
+        Get the maximum of the range of interest of the Iterator of the IOVs.
+        */     
         unsigned int getMax();
        
+        
+        /**
+        Get the minimum and the maximum of the range of interest of the Iterator of the IOVs.
+         */ 
         void getRange(unsigned int*,unsigned int*);
- 
+         
+        /**
+        Set the SINCE TIME of the IOV just analized inside the class CondBasicIter.
+        */
         void setStartTime(unsigned int start);
         
+        /**
+        Set the TILL TIME of the IOV just analized inside the class CondBasicIter.
+         */
         void setStopTime(unsigned int stop); 
-
+        
+        /**
+        Set the avarage time of the IOV just analized inside the class CondBasicIter.
+         */      
         void setTime(unsigned int time); 
   
 };
