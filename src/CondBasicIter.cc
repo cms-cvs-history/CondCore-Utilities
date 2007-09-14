@@ -152,11 +152,8 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & FileXm
     }
 
     void CondBasicIter::setMax(unsigned int max){
-        try {
-            if (((unsigned int) max)>=iter_Min) iter_Max = (unsigned int) max;
-            else throw 1;
-        }
-        catch(int) {std::cout << "Not possible: Maximum < Minimum";}
+        if (((unsigned int) max)>=iter_Min) iter_Max = (unsigned int) max;
+        else std::cout << "Not possible: Maximum < Minimum";
 
         std::cout << "min = " << iter_Min << " and max = " << iter_Max<< std::endl;
 
