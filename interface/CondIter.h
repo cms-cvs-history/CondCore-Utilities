@@ -35,12 +35,13 @@ class CondIter{
 
         const T* Reference;
         cond::Ref<T> *ref;  
-        bool NumberOfTimes;
-  
         CondBasicIter bIter;
                   
     public:
    
+        bool NumberOfTimes;
+        
+        
         CondIter();
         ~CondIter();
 
@@ -165,9 +166,8 @@ It needs:
 
           template <class T> void CondIter<T>::create(const std::string & NameDB,const std::string & FileXml,const std::string & File,const std::string & User,const std::string & Pass){
 
-
               bIter.create(NameDB,FileXml,File,User,Pass);
-              
+              NumberOfTimes = true;
               ref = 0; 
               Reference = 0;
 
