@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
     ::putenv(const_cast<char*>(userenv.c_str()));
     ::putenv(const_cast<char*>(passenv.c_str()));
     static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection("mydb",connect,"",0);
+    conHandler.registerConnection("mydb",connect,0);
     session->open();
     conHandler.connect(session);
     cond::Connection* myconnection=conHandler.getConnection("mydb");
