@@ -175,10 +175,6 @@ template <class T> void CondCachedIter<T>::create(const std::string & NameDB_in,
 
     Iterator->create(NameDB,FileXml,File,User,Pass);
          
-    Iterator->setRange(m_startTime,m_stopTime);
-    m_CondCachedIter.reserve(m_stopTime-m_startTime+2);
-    m_TempCache.reserve(m_stopTime-m_startTime+2);
- 
 }
 
 
