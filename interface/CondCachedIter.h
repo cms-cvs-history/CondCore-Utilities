@@ -25,7 +25,6 @@ class CondCachedIter{
         
                 
         std::string NameDB;
-        std::string FileXml;
         std::string File;
         std::string User;
         std::string Pass;
@@ -48,14 +47,12 @@ class CondCachedIter{
         Direct Access to database through frontier
 It needs:
         \li \c NameDB -> name of the database
-        \li \c FileXml -> catalog of the database
         \li \c File -> Tag human-readable of the content of the database
         \li \c User -> name of the User (if you don't need to authenticate don't write anything here)
         \li \c Pass -> Password to access database (if you don't need to authenticate don't write anything here)
   */       
         
         void create(const std::string & NameDB,
-                    const std::string & FileXml,
                     const std::string & File,
                     const std::string & User = "",
                     const std::string & Pass = ""
@@ -163,17 +160,16 @@ template <class T> CondCachedIter<T>::~CondCachedIter(){
 
 
 
-template <class T> void CondCachedIter<T>::create(const std::string & NameDB_in,const std::string & FileXml_in,const std::string & File_in,const std::string & User_in,const std::string & Pass_in){
+template <class T> void CondCachedIter<T>::create(const std::string & NameDB_in,const std::string & File_in,const std::string & User_in,const std::string & Pass_in){
 
     NameDB = NameDB_in;
-    FileXml = FileXml_in;
     File = File_in;
     User = User_in;
     Pass = Pass_in;
 
     if (!Iterator) Iterator = new CondIter<T>;
 
-    Iterator->create(NameDB,FileXml,File,User,Pass);
+    Iterator->create(NameDB,File,User,Pass);
          
 }
 
@@ -189,7 +185,7 @@ template <class T> void CondCachedIter<T>::rewind() {
  
     now = 0; //back at the beginning
     if (!Iterator) Iterator = new CondIter<T>;
-    Iterator->create(NameDB,FileXml,File,User,Pass);  
+    Iterator->create(NameDB,File,User,Pass);  
     Iterator->setRange(m_startTime,m_stopTime);
     m_CondCachedIter.reserve(m_stopTime-m_startTime+2);
     m_TempCache.reserve(m_stopTime-m_startTime+2);

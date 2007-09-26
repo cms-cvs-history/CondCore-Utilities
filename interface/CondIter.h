@@ -55,7 +55,6 @@ class CondIter{
        
 It needs:
         \li \c  NameDB -> name of the database
-        \li \c FileXml -> catalog of the database
         \li \c File -> Tag human-readable of the content of the database
         \li \c User -> name of the User (if you don't need to authenticate don't write anything here)
         \li \c Pass -> Password to access database (if you don't need to authenticate don't write anything here)
@@ -63,7 +62,6 @@ It needs:
        
         
         void create(const std::string & NameDB,
-                    const std::string & FileXml,
                     const std::string & File,
                     const std::string & User = "",
                     const std::string & Pass = ""
@@ -164,9 +162,9 @@ It needs:
           }
 
 
-          template <class T> void CondIter<T>::create(const std::string & NameDB,const std::string & FileXml,const std::string & File,const std::string & User,const std::string & Pass){
+          template <class T> void CondIter<T>::create(const std::string & NameDB,const std::string & File,const std::string & User,const std::string & Pass){
 
-              bIter.create(NameDB,FileXml,File,User,Pass);
+              bIter.create(NameDB,File,User,Pass);
               NumberOfTimes = true;
               ref = 0; 
               Reference = 0;

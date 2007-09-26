@@ -46,14 +46,12 @@ class CondBasicIter{
         Direct Access to database through frontier
 It needs:
         \li \c NameDB -> name of the database
-        \li \c FileXml -> catalog of the database
         \li \c File -> Tag human-readable of the content of the database
         \li \c User -> name of the User (if you don't need to authenticate don't write anything here)
         \li \c Pass -> Password to access database (if you don't need to authenticate don't write anything here)
          */
         
         void create(const std::string & NameDB,
-                    const std::string & FileXml,
                     const std::string & File,
                     const std::string & User = "",
                     const std::string & Pass = ""

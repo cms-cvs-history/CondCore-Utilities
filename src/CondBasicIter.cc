@@ -27,34 +27,28 @@ void CondBasicIter::setTime(unsigned int time){
 }
 
 
-void CondBasicIter::create(const std::string & NameDB,const std::string & FileXml,const std::string & File,const std::string & User,const std::string & Pass){
+void CondBasicIter::create(const std::string & NameDB,const std::string & File,const std::string & User,const std::string & Pass){
 
 
     
     std::string Command1;
     Command1 = NameDB;
     //You need to write all the sintax like "oracle://cms_orcoff_int2r/SOMETHING"
-    std::string Command2 = " --catalog ";
-    std::string Command3;
-    Command3 = "file:" + FileXml;
     std::string Command4 = " -t ";
     std::string Command5 = File;
     std::string Command6 = " -u " + User;
     std::string Command7 = " -p " + Pass;
 
 
-    std::cout << "Instructions " << Command1 << Command2 << Command3 << Command4 << Command5 << Command6 << Command7 << std::endl;   
+    std::cout << "Instructions " << Command1 << Command4 << Command5 << Command6 << Command7 << std::endl;   
 
     std::string tag;
     std::string connect;
-    std::string catalog("file:PoolFileCatalog.xml");
     std::string user = User;
     std::string pass = Pass;
   
     connect=Command1;
   
-    catalog=Command3;
-   
     tag=Command5;
 
 
@@ -86,7 +80,9 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & FileXm
         
         int test = 0;
         if (!pooldb) {
-            pooldb = new cond::PoolStorageManager(connect,catalog,session); //only if it is the first time (pooldb==0)
+            std::string catconnect="pfncatalog_memory://POOL_RDBMS?";
+            catconnect.append(connect);    
+            pooldb = new cond::PoolStorageManager(connect,catconnect,session);
             test = 1;
         }
                     
