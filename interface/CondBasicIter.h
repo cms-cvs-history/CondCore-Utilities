@@ -15,7 +15,6 @@
 #include "CondCore/DBCommon/interface/ConnectMode.h"
 
 
-
 class CondBasicIter{
 
     private:
@@ -49,12 +48,14 @@ It needs:
         \li \c File -> Tag human-readable of the content of the database
         \li \c User -> name of the User (if you don't need to authenticate don't write anything here)
         \li \c Pass -> Password to access database (if you don't need to authenticate don't write anything here)
-         */
+        \li \c nameBlob -> to handle blob type of data (if it is not needed this field has to be left empty)
+        */
         
         void create(const std::string & NameDB,
                     const std::string & File,
                     const std::string & User = "",
-                    const std::string & Pass = ""
+                    const std::string & Pass = "",
+                    const std::string & nameBlob = ""
                    );
        
         

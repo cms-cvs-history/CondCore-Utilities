@@ -27,7 +27,7 @@ void CondBasicIter::setTime(unsigned int time){
 }
 
 
-void CondBasicIter::create(const std::string & NameDB,const std::string & File,const std::string & User,const std::string & Pass){
+void CondBasicIter::create(const std::string & NameDB,const std::string & File,const std::string & User,const std::string & Pass,const std::string & nameBlob){
 
 
     
@@ -41,7 +41,8 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
 
 
     std::cout << "Instructions " << Command1 << Command4 << Command5 << Command6 << Command7 << std::endl;   
-
+    std::cout << "Blob name = " << nameBlob << std::endl; 
+    
     std::string tag;
     std::string connect;
     std::string user = User;
@@ -54,6 +55,11 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
 
     cond::DBSession* session=new cond::DBSession(true);
     session->sessionConfiguration().setAuthenticationMethod( cond::Env );
+    
+    if (nameBlob.size()) {
+        session->sessionConfiguration().setBlobStreamer(nameBlob.c_str());
+    }
+
     session->sessionConfiguration().setMessageLevel( cond::Error );
     session->connectionConfiguration().setConnectionRetrialTimeOut( 600 );
     session->connectionConfiguration().enableConnectionSharing();
@@ -71,13 +77,12 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
         cond::RelationalStorageManager coraldb(connect,session);
         cond::MetaData metadata_svc(coraldb);
         std::string token;
-        
         coraldb.connect(cond::ReadOnly);
         coraldb.startTransaction(true);
         token=metadata_svc.getToken(tag);
         coraldb.commit();
         coraldb.disconnect();
-        
+                
         int test = 0;
         if (!pooldb) {
             std::string catconnect="pfncatalog_memory://POOL_RDBMS?";

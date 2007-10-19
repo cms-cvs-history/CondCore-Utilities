@@ -28,7 +28,8 @@ class CondCachedIter{
         std::string File;
         std::string User;
         std::string Pass;
-                
+        std::string nameBlob;
+                        
         unsigned int now;
         unsigned int howMany;
         
@@ -50,12 +51,14 @@ It needs:
         \li \c File -> Tag human-readable of the content of the database
         \li \c User -> name of the User (if you don't need to authenticate don't write anything here)
         \li \c Pass -> Password to access database (if you don't need to authenticate don't write anything here)
+        \li \c nameBlob -> to handle blob type of data (if it is not needed this field has to be left empty)
   */       
         
         void create(const std::string & NameDB,
                     const std::string & File,
                     const std::string & User = "",
-                    const std::string & Pass = ""
+                    const std::string & Pass = "",
+                    const std::string & nameBlob = ""
                    );
 
          /**
@@ -160,16 +163,17 @@ template <class T> CondCachedIter<T>::~CondCachedIter(){
 
 
 
-template <class T> void CondCachedIter<T>::create(const std::string & NameDB_in,const std::string & File_in,const std::string & User_in,const std::string & Pass_in){
+template <class T> void CondCachedIter<T>::create(const std::string & NameDB_in,const std::string & File_in,const std::string & User_in,const std::string & Pass_in,const std::string & nameBlob_in){
 
     NameDB = NameDB_in;
     File = File_in;
     User = User_in;
     Pass = Pass_in;
-
+    nameBlob = nameBlob_in;
+    
     if (!Iterator) Iterator = new CondIter<T>;
 
-    Iterator->create(NameDB,File,User,Pass);
+    Iterator->create(NameDB,File,User,Pass,nameBlob);
          
 }
 
@@ -185,7 +189,7 @@ template <class T> void CondCachedIter<T>::rewind() {
  
     now = 0; //back at the beginning
     if (!Iterator) Iterator = new CondIter<T>;
-    Iterator->create(NameDB,File,User,Pass);  
+    Iterator->create(NameDB,File,User,Pass,nameBlob);  
     Iterator->setRange(m_startTime,m_stopTime);
     m_CondCachedIter.reserve(m_stopTime-m_startTime+2);
     m_TempCache.reserve(m_stopTime-m_startTime+2);
