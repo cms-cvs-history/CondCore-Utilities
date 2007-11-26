@@ -187,25 +187,26 @@ int main( int argc, char** argv ){
   ::putenv(const_cast<char*>(userenv.c_str()));
   ::putenv(const_cast<char*>(passenv.c_str()));
   ::putenv(const_cast<char*>(authenv.c_str()));
-  static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-  conHandler.registerConnection("mydb",connect,0);
+  cond::Connection myconnection(connect,-1);
+  session->open();
   try{
-    session->open();
-    cond::PoolTransaction& pooldb=conHandler.getConnection("mydb")->poolTransaction(false);
+    myconnection.connect(session);
+    cond::PoolTransaction& pooldb=myconnection.poolTransaction();
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
-    pooldb.start();
+    pooldb.start(false);
     editor->bulkInsert(newValues);
     iovtoken=editor->token();
     pooldb.commit();
-    cond::CoralTransaction& coraldb=conHandler.getConnection("mydb")->coralTransaction(false);
+    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
     cond::MetaData metadata(coraldb);
-    coraldb.start();
+    coraldb.start(false);
     metadata.addMapping(tag,iovtoken);
     coraldb.commit();
     if(debug){
       std::cout<<"source iov token "<<iovtoken<<std::endl;
     }
+    myconnection.disconnect();
     delete editor;
     delete session;
   }catch(const cond::Exception& er){

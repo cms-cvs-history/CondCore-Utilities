@@ -5,7 +5,6 @@
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
@@ -70,20 +69,18 @@ int main(int argc, char** argv) {
     }else{
       session->configuration().setMessageLevel( cond::Error );
     }
-    session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
-    session->configuration().connectionConfiguration()->enableConnectionSharing();
-    session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();  
+    // session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
+    //session->configuration().connectionConfiguration()->enableConnectionSharing();
+    //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();  
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
     ::putenv(const_cast<char*>(userenv.c_str()));
     ::putenv(const_cast<char*>(passenv.c_str()));
-    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
-    conHandler.registerConnection("mydb",connect,0);
     session->open();
-    conHandler.connect(session);
-    cond::Connection* myconnection=conHandler.getConnection("mydb");
-    cond::CoralTransaction& coraldb=myconnection->coralTransaction(false);
-    coraldb.start();
+    cond::Connection myconnection(connect);
+    myconnection.connect(session);
+    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
+    coraldb.start(false);
     coral::AttributeList emptybinddata;
     std::set<std::string> tables=coraldb.nominalSchema().listTables();
     std::set<std::string>::iterator it;
@@ -93,6 +90,7 @@ int main(int argc, char** argv) {
       std::cout<<*it<<" droped"<<std::endl;
     }
     coraldb.commit();
+    myconnection.disconnect();
     delete session;
   }catch( std::exception& e ) {
     std::cerr << e.what() << std::endl;
