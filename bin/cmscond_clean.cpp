@@ -1,17 +1,11 @@
-#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/ITableDataEditor.h"
 #include "CoralBase/AttributeList.h"
-#include "CoralBase/Attribute.h"
 
 #include <boost/program_options.hpp>
 #include <stdexcept>
