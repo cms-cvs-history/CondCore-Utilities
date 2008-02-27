@@ -9,87 +9,54 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/Utilities/interface/CSVHeaderLineParser.h"
-#include "CondCore/Utilities/interface/CSVBlankLineParser.h"
 #include <boost/program_options.hpp>
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/utility/lists.hpp>
 #include <iterator>
 #include <iostream>
 #include <fstream>
-#include <sstream>
-void parseInputFile(std::fstream& inputFile,
-		    std::vector< std::pair<cond::Time_t, std::string> >& newValues){
-  /*for(cond::Time_t i=1; i<100; ++i){
-    newValues.push_back(std::make_pair<cond::Time_t, std::string>(i,"token"));
-    }
-  */
-  unsigned int counter=0;
-  std::vector<std::string> fieldNames;
-  CSVHeaderLineParser headerParser;
-  unsigned int tillidx=0; //default
-  unsigned int tokenidx=1;//default
-  while (! inputFile.eof() ){
-    std::string line;
-    std::getline (inputFile,line);
-     CSVBlankLineParser blank;
-    if(blank.isBlank(line)){
-      continue;
-    }
-    if(counter==0) {
-      if(!headerParser.parse(line)) {
-	throw cms::Exception("unable to parse header: ")<<line;
-      }
-      fieldNames=headerParser.result();
-      unsigned int idx=0;
-      for(std::vector<std::string>::iterator it=fieldNames.begin();
-	  it!=fieldNames.end(); ++it, ++idx){
-	if( *it==std::string("TILL") || *it==std::string("till") ){
-	  tillidx=idx;
-	}
-	if( *it==std::string("TOKEN") || *it==std::string("token") ){
-	  tokenidx=idx;
-	}
-      }
-    }else{
-      using namespace boost::spirit;
-      std::vector<std::string> result;
-      boost::spirit::rule<> strlist_parser;
-      strlist_parser=list_p((*anychar_p)[push_back_a(result)],',');
-      parse_info<> status=boost::spirit::parse(line.c_str(),strlist_parser);
-      if(!status.full) throw cms::Exception("unable to parse data: ")<<line;
-      unsigned int idx=0;
-      cond::Time_t till=0;
-      std::string payloadToken;
-      for(std::vector<std::string>::iterator it=result.begin(); 
-	  it!=result.end(); ++it, ++idx){
-	//std::cout<<idx<<std::endl;
-	if( idx==tillidx ){
-	  //std::cout<<"is till "<<*it<<std::endl;
-	  std::istringstream iss(*it);
-	  if((iss>>std::dec>>till).fail()){
-	    throw cms::Exception("string conversion failed");
-	  }
-	}
-	if( idx==tokenidx ){
-	  //std::cout<<"is token"<<std::endl;
-	  payloadToken=*it;
-	}
-      }
-      //std::cout<<"till "<<till<<std::endl;
-      //std::cout<<"token "<<payloadToken<<std::endl;
-      newValues.push_back(std::make_pair<cond::Time_t, std::string>(till,payloadToken));
-    }
-    ++counter;
-    continue;
-  }
-}
 
+namespace{
+
+  struct Parser {
+    typedef std::pair<cond::Time_t, std::string> Item;
+
+    std::string tag;
+    std::string contName;
+    std::vector<Item> values;
+    cond::Time_t firstSince;
+
+
+    void parseInputFile(std::fstream& file){
+      
+      
+      std::string dummy;
+      
+      cond::Time_t since, till;
+      std::string token;
+      
+      file >> dummy >> tag;
+      file >> dummy >> contName;
+      char buff[1024];
+      file.getline(buff,1024);
+      file.getline(buff,1024);
+      char p;
+      bool first=true;
+      while(in) {
+	file.get(p); if (p=='T') break;
+	file.putback(p);
+	file >> since >> till >> token;  in.getline(buff,1024);
+	values.push_back(Item(till,token));
+	if (first) {
+	  first=false;
+	  firstSince=since;
+	}
+      }
+      
+    }
+    
 int main( int argc, char** argv ){
   boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_shuffle_iov [options] inputFile \n");
+  boost::program_options::options_description visible("Usage: cmscond_load_iov [options] inputFile \n");
   visible.add_options()
-    ("tag,t",boost::program_options::value<std::string>(),"tag (required)")
     ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
     ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
     ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
@@ -118,13 +85,14 @@ int main( int argc, char** argv ){
     std::cout << visible <<std::endl;;
     return 0;
   }
+  Parser parser;
   std::string connect;
   std::string user("");
   std::string pass("");
   std::string authPath("");
   std::string inputFileName;
   std::fstream inputFile;
-  std::string tag("");
+
   bool debug=false;
   std::vector< std::pair<cond::Time_t, std::string> > newValues;
   if( !vm.count("inputFile") ){
@@ -134,7 +102,7 @@ int main( int argc, char** argv ){
   }else{
     inputFileName=vm["inputFile"].as<std::string>();
     inputFile.open(inputFileName.c_str(), std::fstream::in);
-    parseInputFile(inputFile,newValues);
+    parser.parseInputFile(inputFile);
     inputFile.close();
   }
   if(!vm.count("connect")){
@@ -144,13 +112,7 @@ int main( int argc, char** argv ){
   }else{
     connect=vm["connect"].as<std::string>();
   }
-  if(!vm.count("tag")){
-    std::cerr <<"[Error] no tag[t] option given \n";
-    std::cerr<<" please do "<<argv[0]<<" --help \n";
-    return 1;
-  }else{
-    tag=vm["tag"].as<std::string>();
-  }
+  
   if(vm.count("user")){
     user=vm["user"].as<std::string>();
   }
@@ -166,7 +128,6 @@ int main( int argc, char** argv ){
   if(debug){
     std::cout<<"inputFile:\t"<<inputFileName<<std::endl;
     std::cout<<"connect:\t"<<connect<<'\n';
-    std::cout<<"tag:\t"<<tag<<'\n';
     std::cout<<"user:\t"<<user<<'\n';
     std::cout<<"pass:\t"<<pass<<'\n';
     std::cout<<"authPath:\t"<<authPath<<'\n';
@@ -192,14 +153,14 @@ int main( int argc, char** argv ){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
-    editor->create(0);
+    editor->create(parser.firstSince);
     editor->bulkInsert(newValues);
     iovtoken=editor->token();
     pooldb.commit();
     cond::CoralTransaction& coraldb=myconnection.coralTransaction();
     cond::MetaData metadata(coraldb);
     coraldb.start(false);
-    metadata.addMapping(tag,iovtoken);
+    metadata.addMapping(parser.tag,iovtoken);
     coraldb.commit();
     if(debug){
       std::cout<<"source iov token "<<iovtoken<<std::endl;
