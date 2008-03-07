@@ -13,9 +13,3 @@
 </bin>
 <bin file=cmscond_delete_iov.cpp name=cmscond_delete_iov></bin>
 
-# <bin file=pool_drop_container.cpp name=pool_drop_container>
-<bin file=pool_upgrade_pool_schema.cpp name=pool_upgrade_pool_schema>
-<use name=RelationalStorageService>
-</bin>
-
-
