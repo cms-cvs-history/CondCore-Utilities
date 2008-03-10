@@ -12,3 +12,4 @@
 </bin>
 <bin file=cmscond_delete_iov.cpp name=cmscond_delete_iov></bin>
 <bin file=cmscond_schema_metadata.cpp name=cmscond_schema_metadata></bin>
+<bin file=cmscond_schema_iov.cpp name=cmscond_schema_iov></bin>
