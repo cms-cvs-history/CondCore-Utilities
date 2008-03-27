@@ -137,18 +137,19 @@ int main( int argc, char** argv ){
   std::string pathval("CORAL_AUTH_PATH=");
   pathval+=authPath;
   ::putenv(const_cast<char*>(pathval.c_str()));
-   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+  static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
   conHandler.registerConnection("mysourcedb",sourceConnect,0);
   conHandler.registerConnection("mydestdb",destConnect,0);
   try{
     session->open();
+    conHandler.connect(session);
     std::string sourceiovtoken;
     std::string destiovtoken;
     if( sourceConnect.find("sqlite_fip:") != std::string::npos ){
       cond::FipProtocolParser p;
       sourceConnect=p.getRealConnect(sourceConnect);
     }
-    cond::CoralTransaction& sourceCoralDB=conHandler.getConnection("mysource")->coralTransaction();
+    cond::CoralTransaction& sourceCoralDB=conHandler.getConnection("mysourcedb")->coralTransaction();
     sourceCoralDB.start(true);
     cond::MetaData* sourceMetadata=new cond::MetaData(sourceCoralDB);
     if( !sourceMetadata->hasTag(tag) ){
@@ -160,8 +161,8 @@ int main( int argc, char** argv ){
       std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
     }
     delete sourceMetadata;
-    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction();
-    cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction();
+    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysourcedb")->poolTransaction();
+    cond::PoolTransaction& destdb=conHandler.getConnection("mydestdb")->poolTransaction();
     cond::IOVService iovmanager(sourcedb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     sourcedb.start(true);
@@ -171,7 +172,7 @@ int main( int argc, char** argv ){
 						  payloadName );
     sourcedb.commit();
     destdb.commit();
-    cond::CoralTransaction& destCoralDB=conHandler.getConnection("mydest")->coralTransaction();
+    cond::CoralTransaction& destCoralDB=conHandler.getConnection("mydestdb")->coralTransaction();
     cond::MetaData destMetadata(destCoralDB);
     destCoralDB.start(false);
     destMetadata.addMapping(tag,destiovtoken);
