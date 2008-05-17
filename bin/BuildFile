@@ -6,6 +6,7 @@
 <use name=boost_program_options> 	
 <bin file=cmscond_list_iov.cpp name=cmscond_list_iov></bin>
 <bin file=cmscond_export_iov.cpp name=cmscond_export_iov>
+<use name=CondCore/DBOutputService>
 </bin>
 <bin file=cmscond_load_iov.cpp name=cmscond_load_iov></bin>
 <bin file=cmscond_shuffle_iov.cpp name=cmscond_shuffle_iov>
