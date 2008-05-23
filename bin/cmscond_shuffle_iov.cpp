@@ -190,7 +190,7 @@ int main( int argc, char** argv ){
     myconnection.connect(session);
     cond::PoolTransaction& pooldb=myconnection.poolTransaction();
     // FIXME need timetype from input!!!!!
-    cond::IOVService iovmanager(pooldb,cond::runnumber);
+    cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
     editor->create(1,cond::runnumber);
