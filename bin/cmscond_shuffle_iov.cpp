@@ -11,7 +11,8 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/Utilities/interface/CSVHeaderLineParser.h"
 #include "CondCore/Utilities/interface/CSVBlankLineParser.h"
-#include <boost/program_options.hpp>
+#include "CondCore/Utilities/interface/CommonOptions.h"
+//#include <boost/program_options.hpp>
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/utility/lists.hpp>
 #include <iterator>
@@ -86,36 +87,32 @@ void parseInputFile(std::fstream& inputFile,
 }
 
 int main( int argc, char** argv ){
-  boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_shuffle_iov [options] inputFile \n");
-  visible.add_options()
+  cond::CommonOptions myopt("cmscond_shuffle_iov","inputFile");
+  //  boost::program_options::options_description visible("Usage: cmscond_shuffle_iov [options] inputFile \n");
+  myopt.addConnect();
+  myopt.addAuthentication(true);
+  myopt.visibles().add_options()
     ("tag,t",boost::program_options::value<std::string>(),"tag (required)")
-    ("connect,c",boost::program_options::value<std::string>(),"connection string(required)")
-    ("user,u",boost::program_options::value<std::string>(),"user name (default \"\")")
-    ("pass,p",boost::program_options::value<std::string>(),"password (default \"\")")
-    ("authPath,P",boost::program_options::value<std::string>(),"path to authentication.xml")
-    ("debug","switch on debug mode")
-    ("help,h", "help message")
     ;
   boost::program_options::options_description invisible;
   invisible.add_options()
     ("inputFile",boost::program_options::value<std::string>(), "input file")
     ;
-  desc.add(visible);
-  desc.add(invisible);
+  myopt.description().add( myopt.visibles() );
+  myopt.description().add(invisible);
   boost::program_options::positional_options_description posdesc;
   posdesc.add("inputFile", -1);
 
   boost::program_options::variables_map vm;
   try{
-    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).positional(posdesc).run(), vm);
+    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(myopt.description()).positional(posdesc).run(), vm);
     boost::program_options::notify(vm);
   }catch(const boost::program_options::error& er) {
     std::cerr << er.what()<<std::endl;
     return 1;
   }
   if (vm.count("help")) {
-    std::cout << visible <<std::endl;;
+    std::cout << myopt.visibles()<<std::endl;;
     return 0;
   }
   std::string connect;
