@@ -166,6 +166,10 @@ int main( int argc, char** argv ){
   }
   std::string iovtoken;
   cond::DBSession* session=new cond::DBSession;
+  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+  ::putenv(const_cast<char*>(userenv.c_str()));
+  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  ::putenv(const_cast<char*>(passenv.c_str()));
   if(!debug){
     session->configuration().setMessageLevel(cond::Error);
   }else{
@@ -175,10 +179,7 @@ int main( int argc, char** argv ){
     session->configuration().setAuthenticationMethod(cond::XML);
     session->configuration().setAuthenticationPath(authPath);
   }else{
-    std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-    std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-    ::putenv(const_cast<char*>(userenv.c_str()));
-    ::putenv(const_cast<char*>(passenv.c_str()));
+    session->configuration().setAuthenticationMethod( cond::Env );
   }
   cond::Connection myconnection(connect,-1);
   session->open();
