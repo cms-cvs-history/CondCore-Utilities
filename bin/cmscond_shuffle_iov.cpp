@@ -21,10 +21,6 @@
 #include <sstream>
 void parseInputFile(std::fstream& inputFile,
 		    std::vector< std::pair<cond::Time_t, std::string> >& newValues){
-  /*for(cond::Time_t i=1; i<100; ++i){
-    newValues.push_back(std::make_pair<cond::Time_t, std::string>(i,"token"));
-    }
-  */
   unsigned int counter=0;
   std::vector<std::string> fieldNames;
   CSVHeaderLineParser headerParser;
