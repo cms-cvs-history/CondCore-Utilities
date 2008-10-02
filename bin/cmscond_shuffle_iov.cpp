@@ -12,7 +12,9 @@
 #include "CondCore/Utilities/interface/CSVHeaderLineParser.h"
 #include "CondCore/Utilities/interface/CSVBlankLineParser.h"
 #include "CondCore/Utilities/interface/CommonOptions.h"
-//#include <boost/program_options.hpp>
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/utility/lists.hpp>
 #include <iterator>
@@ -89,6 +91,8 @@ int main( int argc, char** argv ){
   myopt.addAuthentication(true);
   myopt.visibles().add_options()
     ("tag,t",boost::program_options::value<std::string>(),"tag (required)")
+    ("timetype,T",boost::program_options::value<std::string>(),"timetype of the tag (optional)")
+    ("beginTime,b",boost::program_options::value<cond::Time_t>(),"begin time (first since) (optional)")
     ;
   boost::program_options::options_description invisible;
   invisible.add_options()
@@ -118,6 +122,8 @@ int main( int argc, char** argv ){
   std::string inputFileName;
   std::fstream inputFile;
   std::string tag("");
+  std::string timetype("runnumber");
+  cond::Time_t since=0;
   bool debug=false;
   std::vector< std::pair<cond::Time_t, std::string> > newValues;
   if( !vm.count("inputFile") ){
@@ -144,15 +150,19 @@ int main( int argc, char** argv ){
   }else{
     tag=vm["tag"].as<std::string>();
   }
-  if(vm.count("user")){
-    user=vm["user"].as<std::string>();
+  if(vm.count("timetype")){
+    timetype = vm["timetype"].as<std::string>();
+    if(timetype=="runnumber"){
+      since=(cond::Time_t)edm::EventID::firstValidEvent().run();
+    }else if(timetype=="timestamp"){
+      since==(cond::Time_t)edm::Timestamp::beginOfTime().value();
+    }else{
+      throw cond::Exception("unsupported timetype");
+    }
   }
-  if(vm.count("pass")){
-    pass=vm["pass"].as<std::string>();
-  }
-  if( vm.count("authPath") ){
-      authPath=vm["authPath"].as<std::string>();
-  }
+  if(vm.count("beginTime"))
+    since = (cond::Time_t) vm["beginTime"].as<cond::Time_t>();
+
   if(vm.count("debug")){
     debug=true;
   }
@@ -186,11 +196,16 @@ int main( int argc, char** argv ){
   try{
     myconnection.connect(session);
     cond::PoolTransaction& pooldb=myconnection.poolTransaction();
-    // FIXME need timetype from input!!!!!
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
-    editor->create(1,cond::runnumber);
+    if (timetype=="runnumber"){
+      editor->create(since,cond::runnumber);
+    }else if(timetype=="timestamp"){
+      editor->create(since,cond::timestamp);
+    }else{
+      throw cond::Exception("unsupported timetype");
+    }
     editor->bulkInsert(newValues);
     iovtoken=editor->token();
     pooldb.commit();
