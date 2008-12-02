@@ -68,9 +68,8 @@ int main( int argc, char** argv ){
   std::string logConnect;
 
   cond::Time_t since = std::numeric_limits<cond::Time_t>::min();
-  //cond::Time_t till = std::numeric_limits<cond::Time_t>::max();
-  //cond::Time_t till =  cond::timeTypeSpecs[sourceiovtype].endValue;
-  cond::Time_t till = 0;
+  cond::Time_t till = std::numeric_limits<cond::Time_t>::max();
+
   std::string authPath(".");
   std::string configuration_filename;
   bool sqlOutput=false;
@@ -129,6 +128,8 @@ int main( int argc, char** argv ){
    if(vm.count("logDB"))
       logConnect = vm["logDB"].as<std::string>();
 
+
+
     if( vm.count("authPath") ){
       authPath=vm["authPath"].as<std::string>();
     }
@@ -146,7 +147,6 @@ int main( int argc, char** argv ){
     std::cerr << er.what()<<std::endl;
     return 1;
   }
-
   std::string dictlibrary =  dictionary.empty() ? "" : seal::SharedLibrary::libname( dictionary );
   if(debug){
     std::cout<<"sourceConnect:\t"<<sourceConnect<<'\n';
@@ -219,7 +219,7 @@ int main( int argc, char** argv ){
       sourceMetadata.getEntryByTag(inputTag,entry);
       sourceiovtoken=entry.iovtoken;
       sourceiovtype=entry.timetype;
-
+      
       sourceCoralDB.commit();
       if(debug){
         std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
@@ -264,11 +264,8 @@ int main( int argc, char** argv ){
     
 
     since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
-    if(till==0){
-      till = cond::timeTypeSpecs[sourceiovtype].endValue;
-    }else{
-      till  = std::min(till,cond::timeTypeSpecs[sourceiovtype].endValue);
-    }
+    till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
+
     int oldSize=0;
     if (!newIOV) {
       // grab info
