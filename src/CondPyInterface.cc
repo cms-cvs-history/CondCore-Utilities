@@ -8,6 +8,10 @@
 #include <vector>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
+
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
@@ -34,9 +38,13 @@
 #include <iostream>
 #include <sstream>
 
-
 namespace cond {
-
+  class pluginManagerEnable{
+  public:
+    static void enable(){
+      edmplugin::PluginManager::configure(edmplugin::standard::config());
+    }
+  };
   namespace impl {
     struct FWMagic {
       // A.  Instantiate a plug-in manager first.
@@ -48,8 +56,8 @@ namespace cond {
   FWIncantation::~FWIncantation(){}
   
 
-  FWIncantation::FWIncantation() : magic(new impl::FWMagic) {
-
+  FWIncantation::FWIncantation():magic(new impl::FWMagic) {
+    /*std::cout<<"FWIncantation configure pluginmanager"<<std::endl;
     // B.  Load the message service plug-in.  Forget this and bad things happen!
     //     In particular, the job hangs as soon as the output buffer fills up.
     //     That's because, without the message service, there is no mechanism for
@@ -93,15 +101,17 @@ namespace cond {
     
     // E.  Make the services available.
     magic->operate.reset(new edm::ServiceRegistry::Operate(tempToken));
-    
-  }
+    */
+}
 
   //------------------------------------------------------------
 
 
-  CondDB::CondDB() : me(0){}
-  CondDB::CondDB(cond::Connection * conn, boost::shared_ptr<cond::Logger> ilog) :
-    me(conn), logger(ilog) {
+  CondDB::CondDB() : me(0){
+    //cond::pluginManagerEnable::enable();
+  }
+  CondDB::CondDB(cond::Connection * conn, boost::shared_ptr<cond::Logger> ilog) : me(conn), logger(ilog) {
+    //cond::pluginManagerEnable::enable();
   }
 
   // move ownership....
@@ -181,21 +191,27 @@ namespace cond {
 
 
   RDBMS::RDBMS() : session(new DBSession) {
+    cond::pluginManagerEnable::enable();
     session->configuration().setAuthenticationMethod( cond::XML );
+    char* authPath;
+    authPath=::getenv("CORAL_AUTH_PATH");
+    if(authPath==NULL) throw cond::Exception("cond::RDBMS variable CORAL_AUTH_PATH is not set");
+    session->configuration().setAuthenticationPath(std::string(authPath));
     session->configuration().setMessageLevel( cond::Error );
     session->open();
   }
   RDBMS::~RDBMS() {}
 
   RDBMS::RDBMS(std::string const & authPath) : session(new DBSession) {
-    std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
-    ::putenv(const_cast<char*>(authenv.c_str()));
+    cond::pluginManagerEnable::enable();
     session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(authPath);
     session->configuration().setMessageLevel( cond::Error );
     session->open();
   }
   
   RDBMS::RDBMS(std::string const & user,std::string const & pass) : session(new DBSession) {
+    cond::pluginManagerEnable::enable();
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
     ::putenv(const_cast<char*>(userenv.c_str()));

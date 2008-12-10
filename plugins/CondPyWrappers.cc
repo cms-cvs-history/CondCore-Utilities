@@ -12,7 +12,7 @@
 #include "StorageSvc/DbReflex.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
-
+#include "FWCore/PluginManager/interface/standard.h"
 
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -22,6 +22,8 @@ using namespace boost::python;
 #include<iostream>
 
 namespace {
+  //edmplugin::PluginManager::Config config;
+  //edmplugin::PluginManager::configure(edmplugin::standard::config());
 
   // find and return
   boost::shared_ptr<cond::ClassInfo> pyInfo(std::string const & token) {
