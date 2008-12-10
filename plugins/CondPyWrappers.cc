@@ -33,8 +33,11 @@ namespace {
   }
   
   std::string moduleNameByTag(cond::CondDB & db, std::string const & tag) {
+    std::cout<<"moduleNameByTag "<<std::endl;
     cond::IOVProxy iov = db.iov(tag);
+    std::cout<<100<<std::endl;
     if (0==iov.size()) return std::string();
+    std::cout<<200<<std::endl;
     return pyInfo(iov.begin()->payloadToken())->resource();
   }
 
@@ -44,6 +47,7 @@ namespace {
   }
   
   std::string moduleName(cond::CondDB & db, std::string const & ss) {
+    std::cout<<"ss "<<ss<<std::endl;
     //assume tags never start with '['
     if (ss[0]=='[') return moduleNameByToken(ss);
     return  moduleNameByTag(db,ss);
@@ -129,6 +133,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("setRange", &cond::IOVProxy::setRange)
     .def("head", &cond::IOVProxy::head)
     .def("tail", &cond::IOVProxy::tail)
+    .def("timetype", &cond::IOVProxy::timetype)
     .add_property("elements", range( &cond::IOVProxy::begin,  &cond::IOVProxy::end))
     ;
   
