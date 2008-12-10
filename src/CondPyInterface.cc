@@ -39,10 +39,14 @@
 #include <sstream>
 
 namespace cond {
+  static int counter=0;
   class pluginManagerEnable{
   public:
     static void enable(){
-      edmplugin::PluginManager::configure(edmplugin::standard::config());
+      if(counter==0){
+	edmplugin::PluginManager::configure(edmplugin::standard::config());
+	++counter;
+      }
     }
   };
   namespace impl {
@@ -108,10 +112,8 @@ namespace cond {
 
 
   CondDB::CondDB() : me(0){
-    //cond::pluginManagerEnable::enable();
   }
   CondDB::CondDB(cond::Connection * conn, boost::shared_ptr<cond::Logger> ilog) : me(conn), logger(ilog) {
-    //cond::pluginManagerEnable::enable();
   }
 
   // move ownership....
@@ -152,15 +154,18 @@ namespace cond {
   }
 
   std::string CondDB::iovToken(std::string const & tag) const {
+    std::cout<<"tag in iovToken "<<tag<<std::endl;
     cond::CoralTransaction& coraldb=me->coralTransaction();
     cond::MetaData metadata_svc(coraldb);
     coraldb.start(true);
     std::string token=metadata_svc.getToken(tag);
+    std::cout<<"token "<<token<<std::endl;
     coraldb.commit();
     return token;
   }
   
   IOVProxy CondDB::iov(std::string const & tag) const {
+    std::cout<<"me address "<<me<<std::endl;
     return IOVProxy(me->poolTransaction(),iovToken(tag),true);
   }
   
