@@ -154,18 +154,15 @@ namespace cond {
   }
 
   std::string CondDB::iovToken(std::string const & tag) const {
-    std::cout<<"tag in iovToken "<<tag<<std::endl;
     cond::CoralTransaction& coraldb=me->coralTransaction();
     cond::MetaData metadata_svc(coraldb);
     coraldb.start(true);
     std::string token=metadata_svc.getToken(tag);
-    std::cout<<"token "<<token<<std::endl;
     coraldb.commit();
     return token;
   }
   
   IOVProxy CondDB::iov(std::string const & tag) const {
-    std::cout<<"me address "<<me<<std::endl;
     return IOVProxy(me->poolTransaction(),iovToken(tag),true);
   }
   

@@ -33,11 +33,8 @@ namespace {
   }
   
   std::string moduleNameByTag(cond::CondDB & db, std::string const & tag) {
-    std::cout<<"moduleNameByTag "<<std::endl;
     cond::IOVProxy iov = db.iov(tag);
-    std::cout<<100<<std::endl;
     if (0==iov.size()) return std::string();
-    std::cout<<200<<std::endl;
     return pyInfo(iov.begin()->payloadToken())->resource();
   }
 
@@ -47,7 +44,6 @@ namespace {
   }
   
   std::string moduleName(cond::CondDB & db, std::string const & ss) {
-    std::cout<<"ss "<<ss<<std::endl;
     //assume tags never start with '['
     if (ss[0]=='[') return moduleNameByToken(ss);
     return  moduleNameByTag(db,ss);
@@ -83,7 +79,7 @@ namespace {
 				       );
     }
  
-
+  
   void append2VS(std::vector<std::string> & v, std::string s) {
     v.push_back(s);
   }
@@ -127,7 +123,14 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("till", &cond::IOVElement::till)
     .def("payloadToken", &cond::IOVElement::payloadToken, return_value_policy<copy_const_reference>())
     ;
-  
+
+  enum_<cond::TimeType>("TimeType")
+    .value("runnumber",cond::runnumber)
+    .value("timestamp",cond::timestamp)
+    .value("lumiid",cond::lumiid)
+    .value("userid",cond::userid)
+    ;
+
   class_<cond::IOVProxy>("IOV", init<>())
     .def("size", &cond::IOVProxy::size)
     .def("setRange", &cond::IOVProxy::setRange)

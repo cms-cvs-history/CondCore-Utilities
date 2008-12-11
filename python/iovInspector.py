@@ -59,22 +59,31 @@ class Iov :
        def __init__(self, db, tag, since=0, till=0, head=0, tail=0) :
            self.__db = db
            self.__tag = tag
-           try : 
+           print '***1'
+           try :
+               print '***2'   
                self.__modName = db.moduleName(tag)
+               print '***3'
                exec('import '+self.__modName+' as Plug')
+               print '***4'
            except RuntimeError :
                self.__modName = 0
+           print '***5'
            self.__me = db.iov(tag)
-           if (till) : self.__me.setRange(since,till)
-           if (head) : self.__me.head(head)
-           if (tail) : self.__me.tail(tail)
+           print '****CRAP CRAP'
+           #if (till) : self.__me.setRange(since,till)
+           #if (head) : self.__me.head(head)
+           #if (tail) : self.__me.tail(tail)
 
        def list(self) :
            ret = []
            for elem in self.__me.elements :
                ret.append( (elem.payloadToken(), elem.since(), elem.till(),0))
            return ret
-
+    
+       def timetype(self):
+           return self.__me.timetype()
+    
        def summaries(self) :
            if (self.__modName==0) : return ["no plugin for "  + self.__tag+" no summaries"]
            exec('import '+self.__modName+' as Plug')
