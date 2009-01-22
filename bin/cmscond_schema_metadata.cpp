@@ -1,3 +1,5 @@
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
@@ -10,6 +12,7 @@
 //#include <boost/program_options.hpp>
 #include <iostream>
 int main( int argc, char** argv ){
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::CommonOptions myopt("cmscond_schema_metadata");
   myopt.addConnect();
   myopt.addAuthentication(true);
@@ -66,9 +69,15 @@ int main( int argc, char** argv ){
   
   cond::DBSession* session=new cond::DBSession;
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-  ::putenv(const_cast<char*>(userenv.c_str()));
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+  ::putenv(const_cast<char*>(userenv.c_str()));
   ::putenv(const_cast<char*>(passenv.c_str()));
+  if( !authPath.empty() ){
+    session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setAuthenticationPath(authPath);
+  }else{
+    session->configuration().setAuthenticationMethod( cond::Env );    
+  }
   if( !authPath.empty() ){
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setAuthenticationPath(authPath);
