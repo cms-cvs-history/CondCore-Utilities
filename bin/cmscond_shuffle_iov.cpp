@@ -2,7 +2,7 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-//#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -176,6 +176,9 @@ int main( int argc, char** argv ){
   }
   std::string iovtoken;
   cond::DBSession* session=new cond::DBSession;
+  session->configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
+  session->configuration().connectionConfiguration()->setConnectionTimeOut(0);
+
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   ::putenv(const_cast<char*>(userenv.c_str()));
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
