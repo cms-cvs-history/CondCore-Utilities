@@ -6,6 +6,7 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
@@ -168,13 +169,15 @@ int main( int argc, char** argv ){
   }
 
   cond::DBSession session;
+  session.configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
+  session.configuration().connectionConfiguration()->setConnectionTimeOut(0);
 
   if(!debug){
     session.configuration().setMessageLevel(cond::Error);
   }else{
     session.configuration().setMessageLevel(cond::Debug);
   }
-
+  
   session.configuration().setAuthenticationMethod(cond::XML);
   session.configuration().setBlobStreamer(blobStreamerName);
   if(sqlOutput){
@@ -279,9 +282,9 @@ int main( int argc, char** argv ){
     std::auto_ptr<cond::Logger> logdb;
     if (!logConnect.empty()) {
       logdb.reset(new cond::Logger(conHandler.getConnection("logdb")));
-      logdb->getWriteLock();
+      //   logdb->getWriteLock();
       logdb->createLogDBIfNonExist();
-      logdb->releaseWriteLock();
+      // logdb->releaseWriteLock();
     }
     cond::UserLogInfo a;
     a.provenance=sourceConnect+"/"+inputTag;
