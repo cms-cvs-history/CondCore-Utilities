@@ -92,7 +92,7 @@ int main( int argc, char** argv ){
   myopt.visibles().add_options()
     ("tag,t",boost::program_options::value<std::string>(),"tag (required)")
     ("timetype,T",boost::program_options::value<std::string>(),"timetype of the tag (optional)")
-    ("beginTime,b",boost::program_options::value<cond::Time_t>(),"begin time (first since) (optional)")
+    ("endTime,e",boost::program_options::value<cond::Time_t>(),"end time (last till) (optional)")
     ;
   boost::program_options::options_description invisible;
   invisible.add_options()
@@ -123,7 +123,7 @@ int main( int argc, char** argv ){
   std::fstream inputFile;
   std::string tag("");
   std::string timetype("runnumber");
-  cond::Time_t since=0;
+  cond::Time_t  till=0;
   bool debug=false;
   std::vector< std::pair<cond::Time_t, std::string> > newValues;
   if( !vm.count("inputFile") ){
@@ -161,7 +161,7 @@ int main( int argc, char** argv ){
     }
   }
   if(vm.count("beginTime"))
-    since = (cond::Time_t) vm["beginTime"].as<cond::Time_t>();
+    till = (cond::Time_t) vm["beginTime"].as<cond::Time_t>();
 
   if(vm.count("debug")){
     debug=true;
