@@ -2,7 +2,7 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+//#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -28,7 +28,7 @@ namespace{
     cond::TimeType timetype;
     std::string contName;
     std::vector<Item> values;
-    cond::Time_t lastTill;
+    cond::Time_t firstSince;
 
 
     void parseInputFile(std::fstream& file){
@@ -48,13 +48,18 @@ namespace{
       file.getline(buff,1024);
       file.getline(buff,1024);
       char p;
+      bool first=true;
       while(file) {
 	file.get(p); if (p=='T') break;
 	file.putback(p);
 	file >> since >> till >> token;  file.getline(buff,1024);
-	values.push_back(Item(since,token));
+	values.push_back(Item(till,token));
+	if (first) {
+	  first=false;
+	  firstSince=since;
+	}
       }
-      lastTill = till;
+      
     }
 
   };
@@ -139,9 +144,6 @@ int main( int argc, char** argv ){
   }
   std::string iovtoken;
   cond::DBSession* session=new cond::DBSession;
-  session->configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
-  session->configuration().connectionConfiguration()->setConnectionTimeOut(0);
-
   if(!debug){
     session->configuration().setMessageLevel(cond::Error);
   }else{
@@ -179,8 +181,8 @@ int main( int argc, char** argv ){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
-    editor->create(parser.timetype,parser.lastTill);
-    editor->bulkAppend(parser.values);
+    editor->create(parser.firstSince,parser.timetype);
+    editor->bulkInsert(parser.values);
     iovtoken=editor->token();
     pooldb.commit();
     cond::CoralTransaction& coraldb=myconnection.coralTransaction();
@@ -201,3 +203,5 @@ int main( int argc, char** argv ){
   }
   return 0;
 }
+
+

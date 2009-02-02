@@ -46,7 +46,7 @@ namespace cond {
    IOVProxy iov(std::string const & tag) const;
    IOVProxy iovWithLib(std::string const & tag) const;
 
-   IOVElementProxy payLoad(std::string const & token) const;
+   IOVElement payLoad(std::string const & token) const;
 
    std::string iovToken(std::string const & tag) const;
    
@@ -80,3 +80,5 @@ namespace cond {
 
 
 #endif //  CondCore_Utilities_CondPyInterface_h
+
+

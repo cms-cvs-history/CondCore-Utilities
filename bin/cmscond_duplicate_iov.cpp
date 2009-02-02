@@ -3,7 +3,6 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
@@ -171,8 +170,6 @@ int main( int argc, char** argv ){
   }else{
     session.configuration().setMessageLevel(cond::Debug);
   }
-  session.configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
-  session.configuration().connectionConfiguration()->setConnectionTimeOut(0);
 
   if( !authPath.empty() ){
     session.configuration().setAuthenticationMethod( cond::XML );
@@ -239,7 +236,7 @@ int main( int argc, char** argv ){
 	std::cerr <<"[Error] no payload found for time " << from << std::endl;
 	return 1;
       }
-      if ( (iov.end()-1)->wrapperToken()==payload) {
+      if ( (iov.end()-1)->payloadToken()==payload) {
 	std::cerr <<"[Warning] payload for time " << from
 		  <<" equal to last inserted payload, no new IOV will be created" <<  std::endl;
 	return 0;
@@ -293,3 +290,5 @@ int main( int argc, char** argv ){
   }
   return 0;
 }
+
+
