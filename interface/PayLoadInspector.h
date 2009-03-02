@@ -82,9 +82,9 @@ namespace cond {
     typedef ValueExtractor<T> Extractor;
         
     PayLoadInspector() {}
-    PayLoadInspector(const cond::IOVElement & elem) : 
+    PayLoadInspector(const cond::IOVElementProxy & elem) : 
       PoolTransactionSentry(*elem.db()),
-      object(*elem.db(),elem.payloadToken()){}
+      object(*elem.db(),elem.wrapperToken()){}
 
     std::string dump() const { return ""; }
 
