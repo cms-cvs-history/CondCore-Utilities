@@ -1,19 +1,18 @@
 #include "CondCore/Utilities/interface/CondPyInterface.h"
 
 #include <exception>
-#include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <string>
 #include <vector>
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
-#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+//#include "FWCore/Utilities/interface/Exception.h"
+//#include "FWCore/PluginManager/interface/ProblemTracker.h"
+//#include "FWCore/Utilities/interface/Presence.h"
+//#include "FWCore/PluginManager/interface/PresenceFactory.h"
+//#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
@@ -51,7 +50,7 @@ namespace cond {
   namespace impl {
     struct FWMagic {
       // A.  Instantiate a plug-in manager first.
-      edm::AssertHandler ah;
+      //edm::AssertHandler ah;
       boost::shared_ptr<edm::ServiceRegistry::Operate> operate;
     };
   }
@@ -65,10 +64,9 @@ namespace cond {
     //     In particular, the job hangs as soon as the output buffer fills up.
     //     That's because, without the message service, there is no mechanism for
     //     emptying the buffers.
-    boost::shared_ptr<edm::Presence> theMessageServicePresence;
-    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-      makePresence("MessageServicePresence").release());
-
+    /*boost::shared_ptr<edm::Presence> theMessageServicePresence;
+    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
+    std::cout<<"q"<<std::endl;
     // C.  Manufacture a configuration and establish it.
     std::string config =
       "process x = {"
@@ -93,30 +91,30 @@ namespace cond {
       "service = JobReportService{}"
       "service = SiteLocalConfigService{}"
       "}";
-    
-  
+    std::cout<<"config "<<config<<std::endl;
 
-  boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
+    boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
     boost::shared_ptr<edm::ParameterSet>          params_;
     edm::makeParameterSets(config, params_, pServiceSets);
-    
+    std::cout<<"crap crap"<<std::endl;
     // D.  Create the services.
     edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
-    
+    std::cout<<22<<std::endl;
     // E.  Make the services available.
     magic->operate.reset(new edm::ServiceRegistry::Operate(tempToken));
-    
+    std::cout<<"operate"<<std::endl;
+    */
   }
 
   //------------------------------------------------------------
 
 
   CondDB::CondDB() : me(0){
-    topinit();    
+    //topinit();    
   }
   CondDB::CondDB(cond::Connection * conn, boost::shared_ptr<cond::Logger> ilog) :
     me(conn), logger(ilog) {
-    topinit();
+    //topinit();
   }
 
   // move ownership....
@@ -196,15 +194,15 @@ namespace cond {
 
 
   RDBMS::RDBMS() : session(new DBSession) {
-    topinit();
-    session->configuration().setAuthenticationMethod( cond::XML );
-    session->configuration().setMessageLevel( cond::Error );
+    //topinit();
+    //session->configuration().setAuthenticationMethod( cond::XML );
+    //session->configuration().setMessageLevel( cond::Error );
     session->open();
   }
   RDBMS::~RDBMS() {}
 
   RDBMS::RDBMS(std::string const & authPath) : session(new DBSession) {
-    topinit();
+    //topinit();
     session->configuration().setAuthenticationPath(authPath);
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setMessageLevel( cond::Error );
@@ -212,7 +210,7 @@ namespace cond {
   }
   
   RDBMS::RDBMS(std::string const & user,std::string const & pass) : session(new DBSession) {
-    topinit();
+    //topinit();
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
     ::putenv(const_cast<char*>(userenv.c_str()));
@@ -232,7 +230,10 @@ namespace cond {
 
   
   CondDB RDBMS::getDB(std::string const & db) {
-    cond::ConnectionHandler::Instance().registerConnection(db,*session,-1);
+    //std::cout<<"RDBMS::getDB"<<std::endl;
+    if( cond::ConnectionHandler::Instance().getConnection(db)==0){
+      cond::ConnectionHandler::Instance().registerConnection(db,*session,-1);
+    }
     cond::Connection & conn = *cond::ConnectionHandler::Instance().getConnection(db);
     conn.connect(session.get());
     return CondDB(&conn,logger);

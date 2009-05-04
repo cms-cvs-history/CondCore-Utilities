@@ -32,7 +32,7 @@ namespace cond {
   private:
     boost::shared_ptr<impl::FWMagic> magic;
   };
-
+  
   // a readonly CondDB and its transaction
  class CondDB {
   public:
