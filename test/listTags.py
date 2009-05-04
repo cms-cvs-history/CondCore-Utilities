@@ -3,14 +3,15 @@ sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
 from pluginCondDBPyInterface import *
 a = FWIncantation()
-os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 
 import coral
 from CondCore.TagCollection import Node,tagInventory,TagTree
-context = coral.Context()
-context.setVerbosityLevel( 'ERROR' )
-# context.setVerbosityLevel( 'DEBUG' )
-svc = coral.ConnectionService( context )
+ms=coral.MessageStream('')
+ms.setMsgVerbosity(coral.message_Level_Error)
+svc = coral.ConnectionService()
+config=svc.configuration()
+os.environ['CORAL_AUTH_PATH']="/afs/cern.ch/cms/DB/conddb"
+config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
 session = svc.connect("oracle://cms_orcoff_prod/CMS_COND_21X_GLOBALTAG",accessMode = coral.access_ReadOnly )
 inv=tagInventory.tagInventory(session)
 mytree=TagTree.tagTree(session,"CRAFT_ALL_V3")
@@ -25,7 +26,7 @@ for r in result:
 mytree=0
 inv=0
 del session
-del svc
+#del svc
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 
 
@@ -83,9 +84,10 @@ for tag in tags:
 
 # SiStripFedCabling_TKCC_20X_v3_hlt
 
-rdbms = RDBMS()
+rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 dba = rdbms.getDB("oracle://cms_orcoff_prod/CMS_COND_20X_ALIGNMENT")
-dbb = rdbms.getDB("frontier://FrontierProd/CMS_COND_20X_ALIGNMENT")
+#dbb = rdbms.getDB("frontier://FrontierProd/CMS_COND_20X_ALIGNMENT")
+dbb = rdbms.getDB("frontier://(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_20X_ALIGNMENT")
 dbe = rdbms.getDB("oracle://cms_orcoff_prod/CMS_COND_20X_ECAL")
 for db in (dba,dbe) :
     tags = db.allTags()
