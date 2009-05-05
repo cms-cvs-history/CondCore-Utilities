@@ -25,10 +25,8 @@ for r in result:
 
 mytree=0
 inv=0
-del session
 #del svc
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
-
 
 # cmscond_list_iov -c "frontier://(proxyurl=http://cmst0frontier1.cern.ch:3128)(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd)(forcereload=short)/CMS_COND_20X_HCAL"
 
@@ -85,10 +83,10 @@ for tag in tags:
 # SiStripFedCabling_TKCC_20X_v3_hlt
 
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
-dba = rdbms.getDB("oracle://cms_orcoff_prod/CMS_COND_20X_ALIGNMENT")
+dba = rdbms.getDB("oracle://cms_orcoff_prod/CMS_COND_30X_ALIGNMENT")
 #dbb = rdbms.getDB("frontier://FrontierProd/CMS_COND_20X_ALIGNMENT")
-dbb = rdbms.getDB("frontier://(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_20X_ALIGNMENT")
-dbe = rdbms.getDB("oracle://cms_orcoff_prod/CMS_COND_20X_ECAL")
+dbb = rdbms.getDB("frontier://(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_30X_ECAL")
+dbe = rdbms.getDB("oracle://cms_orcoff_prod/CMS_COND_30X_ECAL")
 for db in (dba,dbe) :
     tags = db.allTags()
     for tag in tags.split() :
@@ -100,3 +98,4 @@ for db in (dba,dbe) :
         except RuntimeError :
             print " no iov?"
 
+del session
