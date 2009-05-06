@@ -25,7 +25,7 @@ for r in result:
 
 mytree=0
 inv=0
-#del svc
+
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 
 # cmscond_list_iov -c "frontier://(proxyurl=http://cmst0frontier1.cern.ch:3128)(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd)(forcereload=short)/CMS_COND_20X_HCAL"
@@ -98,4 +98,5 @@ for db in (dba,dbe) :
         except RuntimeError :
             print " no iov?"
 
+#session must be shared
 del session
