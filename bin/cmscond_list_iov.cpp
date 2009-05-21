@@ -78,7 +78,7 @@ int main( int argc, char** argv ){
     debug=true;
   }
 
-  std::vector<edm::ParameterSet> psets;
+  /*std::vector<edm::ParameterSet> psets;
 
   edm::ParameterSet pSet;
   pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
@@ -86,7 +86,7 @@ int main( int argc, char** argv ){
 
   edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
   edm::ServiceRegistry::Operate operate(services);
-
+  */
 
   cond::DBSession* session=new cond::DBSession;
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
