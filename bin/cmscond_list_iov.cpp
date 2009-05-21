@@ -110,7 +110,8 @@ int main( int argc, char** argv ){
   //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
   //session->connectionService().configuration().disablePoolAutomaticCleanUp();
   //session->connectionService().configuration().setConnectionTimeOut(0);
-  
+  session->configuration().connectionConfiguration()->disablePoolAutomaticCleanUp(); 	  	   
+  session->configuration().connectionConfiguration()->setConnectionTimeOut(0);
   if( connect.find("sqlite_fip:") != std::string::npos ){
     cond::FipProtocolParser p;
     connect=p.getRealConnect(connect);
