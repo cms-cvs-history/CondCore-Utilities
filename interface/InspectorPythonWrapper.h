@@ -4,9 +4,9 @@
 
 
 namespace condPython {
-  using namespace boost::python;
   template<typename T>
   void defineWhat() {
+    using namespace boost::python;
     typedef cond::ExtractWhat<T> What;
     class_<What>("What",init<>());
   }
@@ -17,7 +17,7 @@ namespace {
   
   template<typename Wrapper>
   void define() {
-     using namespace boost::python;
+    using namespace boost::python;
     typedef typename Wrapper::Extractor Extractor;
     typedef typename Extractor::What What;
 
